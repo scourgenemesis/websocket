@@ -14,6 +14,7 @@ public class ClientEndpoint {
     @OnOpen
     public void onOpen(Session session) {
         System.out.println("New user connected!");
+        this.session = session;
     }
 
     @OnMessage
@@ -24,35 +25,40 @@ public class ClientEndpoint {
     @OnClose
     public void onClose(Session session) {
         System.out.println(session.getId() + " has left the chat!");
+        this.session = null;
     }
 
 
-    public void connectToServer() throws Exception {
+    private void connectToServer() throws Exception {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String serverUri = "ws://localhost:8080/chat";
+        String serverUri = "ws://localhost:8080/folder/app";
         container.connectToServer(this, URI.create(serverUri));
     }
 
-    public void sendMessage(String message) {
+    private void sendMessage(String message) {
         session.getAsyncRemote().sendText(message);
     }
 
     public void userInputLoop() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
+            System.out.println("Enter your message: ");
             String message = scanner.nextLine();
             if (message.equalsIgnoreCase("exit")) {
                 break;
             }
+            sendMessage(message);
         }
+        scanner.close();
     }
 
     public static void main(String[] args) {
         ClientEndpoint client = new ClientEndpoint();
-        try {
-            client.connectToServer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            try {
+                client.connectToServer();
+                client.userInputLoop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
     }
 }

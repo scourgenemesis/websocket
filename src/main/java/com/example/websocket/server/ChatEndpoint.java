@@ -10,34 +10,37 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@ServerEndpoint("/chat")
+@ServerEndpoint("/app")
 public class ChatEndpoint {
-    private Set<Session> sessions = Collections.synchronizedSet(new HashSet<>());
-
+    private static Set<Session> sessions = Collections.synchronizedSet(new HashSet<>());
 
     @OnOpen
-    private void onOpen(Session session) {
+    public void onOpen(Session session) {
         System.out.println("New user connected!");
         sessions.add(session);
     }
 
     @OnMessage
-    private void onMessage(Session session, String message) {
-        System.out.println(session + ": " + message);
-
+    public void onMessage(String message, Session session) {
+        broadcast("User " + session.getId() + ": " + message, session);
     }
 
     @OnClose
-    private void onClosed(Session session) {
+    public void onClosed(Session session) {
         sessions.remove(session);
         System.out.println("User disconnected");
     }
 
-    public void broadcast(String message) {
+    public void broadcast(String message, Session sender) {
+        System.out.println("All sessions: ");
+        sessions.forEach(s -> System.out.println(" - " + s.getId()));
+        synchronized (sessions) {
         sessions.forEach(s -> {
-            if (s.isOpen()) {
+            if (s.isOpen() && !s.getId().equals(sender.getId())) {
                 s.getAsyncRemote().sendText(message);
             }
         });
+            System.out.println(sender.getId() + ": " + message);
+        }
     }
 }
