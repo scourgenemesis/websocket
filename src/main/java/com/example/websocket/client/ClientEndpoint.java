@@ -41,8 +41,8 @@ public class ClientEndpoint {
 
     public void userInputLoop() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message: ");
         while (true) {
-            System.out.println("Enter your message: ");
             String message = scanner.nextLine();
             if (message.equalsIgnoreCase("exit")) {
                 break;

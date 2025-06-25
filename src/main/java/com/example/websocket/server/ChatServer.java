@@ -1,6 +1,5 @@
 package com.example.websocket.server;
 
-import com.example.websocket.config.WebsocketConfig;
 import jakarta.websocket.DeploymentException;
 import org.glassfish.tyrus.server.Server;
 
